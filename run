@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -x
+
+docker-compose down
+docker-compose up --build --detach
+docker-compose logs --follow &
+
+curl http://localhost:8080/bugged
+curl http://localhost:8080/unbugged
+
+docker-compose down
+wait

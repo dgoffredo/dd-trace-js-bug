@@ -1,0 +1,33 @@
+services:
+    # The bad interaction with the fastcgi module begins with tracer version
+    # 2.4.1
+    bugged:
+        build:
+            context: ./
+            dockerfile: ./Dockerfile
+            args:
+                version: 2.4.1
+        volumes:
+             - './fastcgi.js:/opt/app/fastcgi.js:ro'
+
+    # Tracer version 2.4.0 does not exhibit the bad interaction with the
+    # fastcgi module.
+    unbugged:
+        build:
+            context: ./
+            dockerfile: ./Dockerfile
+            args:
+                version: 2.4.0
+        volumes:
+             - './fastcgi.js:/opt/app/fastcgi.js:ro'
+
+    # Nginx acts as a proxy to translate HTTP into FastCGI.
+    nginx:
+        image: nginx:1.21.6-alpine
+        volumes:
+            - './nginx.conf:/etc/nginx/nginx.conf:ro'
+        ports:
+            - '8080:80'
+        depends_on:
+            - bugged
+            - unbugged
